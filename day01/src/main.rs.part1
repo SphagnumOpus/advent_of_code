@@ -1,0 +1,33 @@
+use std::io;
+
+//Day 01 2020 for Advent of Code
+//
+//
+
+fn main() {
+    let target:u32 = 2020;  //target total that day1 problem requires.
+    println!("Looking for numbers adding to {}",target);
+    let mut count:usize = 0; 
+    let mut nums = [0; 1000];   //Assuming I won't need more than 1000 numbers
+    loop {
+        let mut this_num = String::new();
+        let bytes = io::stdin()
+            .read_line(&mut this_num)
+            .expect("Failed to read line");
+        if bytes == 0 {
+            break;
+        }
+        nums[count] = this_num.trim().parse().expect("Error - non numeric input");
+        if count > 0 {
+            for iterator in 0..count-1 {
+                if (nums[iterator] + nums[count]) == target {
+                        println!("found the answer, nums are {} and {} product is {}", 
+                                 nums[iterator],nums[count],nums[iterator]*nums[count]);
+                        break;
+                }
+            }
+        }
+        count=count+1;
+    }
+    println!("Number of numbers = {}",count)
+}
