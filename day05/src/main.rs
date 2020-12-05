@@ -46,6 +46,16 @@ fn main() {
     }
     println!("The part 1 answer is {}",max_count);
 
+    let mut empty_seat = 0;
+    for n in (1..max_count).rev() {
+        if None == rec_inp.get(&n) {
+            empty_seat = n;
+            break;
+        }
+    }
+
+    println!("The part 2 answer is {}",empty_seat);
+
 
 
 
