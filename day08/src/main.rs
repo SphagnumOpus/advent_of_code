@@ -1,28 +1,23 @@
 use std::io;
-use std::env;
 use std::collections::HashMap;
 use std::collections::HashSet;
 
-//Day 07 2020 for advent of code
+//Day 08 2020 for advent of code
 //
 //
-static mut DEBUG: bool = false;
-static mut PART1: bool = true;
-static mut PART2: bool = false; //assume part 1
-
 
 struct Registers {
     program_counter:isize,
     accumulator:isize,
 } // future proofing this by building a register struct
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Clone)]
 struct AssemCodeLine {
     code:InstrCode,
     arg1:isize,
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Clone)]
 enum InstrCode{
     Nop,
     Acc,
@@ -31,29 +26,6 @@ enum InstrCode{
 
 
 fn main() {
-    let args: Vec<String> = env::args().collect();
-
-    if args.len() == 1 { println!("No arguments passed"); }
-
-    for s in args {
-        match &s[..] {
-            "--debug" => {
-                println!("Debug mode");
-                unsafe {DEBUG = true;}
-            }
-            "--part1" => {
-                println!("Part1 mode explicitly set");
-                unsafe{PART1 = true;}
-            }
-            "--part2" => {
-                println!("Part2 mode explicitly set");
-                unsafe{PART2 = true;}
-            }
-            _ => {
-            }
-        }
-    }
-
 
     let orig_inp = read_input();  //read input buffer into strings
     let mem_map = create_mem_map(&orig_inp);  //create memory map
