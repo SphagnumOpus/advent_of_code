@@ -114,7 +114,7 @@ fn create_bag_rules(inp:&Vec<String>) -> HashMap<String,Vec<BagRuleItem>> {
 
 fn create_bags_inside(input: &HashMap<String,Vec<BagRuleItem>>) -> HashMap<String,HashMap<String,usize>>{
     let mut out = HashMap::new();
-    for (bagname,bagrules) in input{
+    for (bagname,_bagrules) in input{
         let mut str_hs = HashMap::new();   //keys of used bag names for this key
         bld_bag_list(&input, bagname.clone(),1, &mut str_hs); 
         out.insert(bagname.clone(),str_hs);
@@ -131,8 +131,9 @@ fn bld_bag_list(in_rules: &HashMap<String,Vec<BagRuleItem>>, inp_bag:String,num_
                 Some(prv_bags) =>  prv_bags,
                 _ => &(0 as usize),
             };
+            let new_tot_bags = (new_bags*num_bags)+prior_bags;  //get updated total number of bags
             //add new bags here
-            hs.insert(i.bag_name.clone(),(new_bags*num_bags)+prior_bags);
+            hs.insert(i.bag_name.clone(),new_tot_bags);
             bld_bag_list(in_rules,i.bag_name.clone(),new_bags*num_bags, &mut hs)
         }
     }
