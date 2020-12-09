@@ -32,19 +32,29 @@ fn main() {
             lower_bounds += 1;
         }
     }
-    let mut min = xmas_data[lower_bounds];
-    let mut max = min;
-    for i in lower_bounds..upper_bounds {
-        let cur=xmas_data[i];
-        if cur > max {
-            max = cur;
-        }
-        else if cur < min {
-            min = cur;
-        }
-    }
+    let strt = xmas_data[lower_bounds]; 
+    let result = xmas_data[lower_bounds..upper_bounds]
+        .iter()
+        .fold((strt,strt),|acc,&b| {
+        if acc.0 < b {(b,acc.1)} 
+        else if acc.1 > b {(acc.0,b)} 
+        else {acc}
+        });
 
-    let part2_answer= min+max;
+
+//    let min = xmas_data[lower_bounds];
+//    let mut max = min;
+//    for i in lower_bounds..upper_bounds {
+//        let cur=xmas_data[i];
+//        if cur > max {
+//            max = cur;
+//        }
+//        else if cur < min {
+//            min = cur;
+//        }
+//    }
+
+    let part2_answer= result.0+result.1;
     println!("The part 2 answer is {}",part2_answer);
 
 
