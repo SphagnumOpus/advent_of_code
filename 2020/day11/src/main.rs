@@ -1,5 +1,4 @@
 use std::io;
-use std::cmp::min;
 
 //Day 11 2020 for advent of code
 //
@@ -28,7 +27,16 @@ fn main() {
     let part1_answer = new_seats.iter()
                                 .fold(0,|acc,a| acc + a.matches("#").count());
     println!("The part 1 answer is {}",part1_answer);
-    let part2_answer = create_part2_answer(new_seats);
+    let mut cur_seats = orig_inp.clone();  //reset matrix to start
+    loop {
+        new_seats = new_round(&cur_seats,WhichPart::Part2);
+        if seat_maps_equal(&cur_seats, &new_seats) {
+            break;
+        }
+        cur_seats = new_seats;
+    }
+    let part2_answer = new_seats.iter()
+                                .fold(0,|acc,a| acc + a.matches("#").count());
     println!("The part 2 answer is {}",part2_answer);
 }
 
@@ -44,9 +52,6 @@ fn read_input() -> Vec<String> {
 }
 
 
-fn create_part2_answer(_inp:Vec<String>) -> isize {
-    0
-}
 
 fn seat_maps_equal(inp1:&Vec<String>, inp2:&Vec<String>) -> bool {
     if inp1.len() != inp2.len() {
@@ -69,16 +74,6 @@ fn new_round(inp:&Vec<String>,part:WhichPart)-> Vec<String>  {
                 bld_row.push('.');
                 continue;
             }
-//            let mut occ_seats = 0;
-//            for x in sub1(i_idx)..=min(i_idx + 1, inp.len()-1) {
-//                occ_seats += inp[x][sub1(j_idx) ..= min(j_idx + 1,i.len()-1)]
-//                    .chars()
-//                    .filter(|a| *a=='#')
-//                    .count();
-//            }
-//            if j=='#' {
-//                occ_seats-=1;
-//            }
             let occ_seats = calc_occ_seats(inp,part,i_idx,j_idx);
             bld_row.push(match occ_seats  {
                 0 => '#', 
@@ -96,26 +91,62 @@ fn new_round(inp:&Vec<String>,part:WhichPart)-> Vec<String>  {
     out
 }
 
-fn sub1(inp:usize)->usize{
-    match inp {
-        0 => 0,
-        _ => inp-1,
-    }
-}
 
 fn calc_occ_seats(in_mat:&Vec<String>,
                   in_part:WhichPart,
                   in_row:usize,
                   in_col:usize) -> usize {
     let mut out = 0;
-    for x in sub1(in_row)..=min(in_row + 1, in_mat.len()-1) {
-       out += in_mat[x][sub1(in_col) ..= min(in_col + 1,in_mat[in_row].len()-1)]
-            .chars()
-            .filter(|a| *a=='#')
-            .count();
-    }
-    if in_mat[in_row][in_col..].chars().next()==Some('#') {
-        out-=1;
-    }
+    let directions = vec![
+        (0,-1),(-1,-1),(-1,0),(-1,1),(0,1),(1,1),(1,0),(1,-1)];
+    for cd in &directions {
+        let limit = match in_part {
+            WhichPart::Part1 => 1,
+            WhichPart::Part2 => 9999, //high value, so loops as much as needed
+        };
+        let mut ptr = (in_row,in_col);
+        let mut counter=0;
+        while inc_ptr(&in_mat,&cd,&mut ptr) && counter < limit{
+            counter+=1;
+            if in_mat[ptr.0][ptr.1..ptr.1+1].chars().next()==Some('L') {
+                break;
+            }
+            if in_mat[ptr.0][ptr.1..ptr.1+1].chars().next()==Some('#') {
+                out+=1;
+                break;
+            };
+        };
+    };
+
+
     out
 }
+
+fn inc_ptr(inm:&Vec<String>,
+           in_cd:&(i32,i32),
+           in_ptr:&mut (usize,usize)) -> bool {
+    //avoid negative indices
+    if (in_cd.0 == -1 && in_ptr.0 == 0) 
+        || (in_cd.1 == -1 && in_ptr.1 == 0){
+        return false;
+    }
+    //avoid out-of-bounds above
+    else if (in_cd.0 == 1 && in_ptr.0+1==inm.len())
+             || (in_cd.1 == 1 && in_ptr.1+1==inm[in_ptr.0].len()){
+        return false;
+    };
+    in_ptr.0 = match in_cd.0 {
+        -1 => in_ptr.0-1,
+        0  => in_ptr.0,
+        1 => in_ptr.0+1,
+        _ => in_ptr.0,
+    };
+    in_ptr.1 = match in_cd.1 {
+        -1 => in_ptr.1-1,
+        0  => in_ptr.1,
+        1 => in_ptr.1+1,
+        _ => in_ptr.0,
+    };
+    true
+}
+
