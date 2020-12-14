@@ -35,7 +35,7 @@ fn main() {
     let part1_answer = calc_part1(&int_vec);
     println!("The part 1 answer is {}",part1_answer);
 
-    let part2_answer = calc_part2(&orig_inp);
+    let part2_answer = calc_part2(&int_vec);
     println!("The part 2 answer is {}",part2_answer);
 }
 
@@ -75,9 +75,25 @@ fn calc_part1(inp:&Vec<Instruction>) ->usize {
 
 
 
-fn calc_part2(_inp:&Vec<String>) -> isize {
-    0
-   
+fn calc_part2(inp:&Vec<Instruction>) ->usize {
+    let mut cur_mask = match &inp[0]{
+        Instruction::Mask(m) => m,
+        _ => panic!("Error, first instruction is not a mask"),
+    };
+    let mut hm = HashMap::new();
+    for i in inp {
+        assert_eq!(true, match i {
+            Instruction::Mask(m) => {
+                cur_mask = &*m;
+                true},
+            Instruction::Mem(m) => apply_mask2_and_hm_insert(&mut hm,&m.mem_loc,&cur_mask,&m.value),
+        });
+    };
+    let mut out=0;
+    for (_key,value) in hm {
+        out += value;
+    };
+    out
 }
 
 fn build_int_vec(inp:&Vec<String>) ->Vec<Instruction> {
@@ -140,6 +156,36 @@ fn apply_mask(inp_bm: &BitMask, inp_u: &usize) -> usize{
     out
 }
 
+fn apply_mask2_and_hm_insert(mut inp_hm:&mut HashMap<usize,usize>, 
+                             inp_ml: &usize,
+                             inp_bm: &BitMask, 
+                             inp_val: &usize) -> bool{
+    let tmp_ml = inp_bm.mask_base | inp_ml;
+    add_iter_mem_loc(&mut inp_hm,&inp_bm.mask_and,&tmp_ml,&inp_val);
+    true
+}
 
+fn add_iter_mem_loc(mut inp_hm:&mut HashMap<usize,usize>,
+                    inp_xm:&usize,
+                    inp_ml:&usize, 
+                    inp_val:&usize) {
+    if *inp_xm == 0 {
+        let tmp_ml = inp_ml | inp_xm;
+        inp_hm.insert(tmp_ml,*inp_val);  //no X in this mask, no uncertainty, so write out
+        return;
+    }
+    else {
+        let mut highest_bit=0;
+        while (inp_xm & (1<<(35-highest_bit))) == 0{
+            highest_bit += 1;
+        }
+        //call recursively with this bit turned off for the two possible values possible for this
+        //bit
+        let tmp_xm = *inp_xm - (1<<(35-highest_bit));
+        let mut tmp_ml = *inp_ml | (1<<(35-highest_bit));
+        add_iter_mem_loc(&mut inp_hm,&tmp_xm,&tmp_ml, &inp_val);
+        tmp_ml -= 1<<(35-highest_bit);
+        add_iter_mem_loc(&mut inp_hm,&tmp_xm,&tmp_ml, &inp_val);
+    }
+}
 
-        
