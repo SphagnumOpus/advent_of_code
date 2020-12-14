@@ -1,4 +1,6 @@
 use std::io;
+use std::collections::HashMap;
+use std::cmp::Reverse;
 
 //Day 13 2020 for advent of code
 //
@@ -15,7 +17,7 @@ fn main() {
     let part1_answer = calc_part1(&earliest_time,&bus_list);
     println!("The part 1 answer is {}",part1_answer);
 
-    let part2_answer = 0;
+    let part2_answer = calc_part2(&orig_inp[1],&bus_list);
     println!("The part 2 answer is {}",part2_answer);
 }
 
@@ -59,3 +61,39 @@ fn calc_part1(inpt:&isize,inpb:&Vec<isize>) ->isize {
 
 
 
+fn calc_part2(inps:&String,inpb:&Vec<isize>) -> isize {
+    let mut hm=HashMap::new();
+    let mut zero_elem = 0;
+    for (idx,i) in inps.split(",").enumerate() {
+        if i != "x" {
+            let val = i.trim().parse::<isize>().expect("Error, not an x and not a number");
+            if idx==0 {
+                zero_elem=val as isize;
+            }
+            hm.insert(val,idx as isize);
+        }
+    }
+    let mut rev_sorted_bus_list = inpb[1..].to_vec().clone();
+    rev_sorted_bus_list.sort_by_key(|k| Reverse(*k));
+
+
+   let target = zero_elem;
+   find_target(&rev_sorted_bus_list,&hm,&target,&target)
+   
+}
+
+fn find_target(inp_bl:&Vec<isize>,inp_hm:&HashMap<isize,isize>,inp_strt_pt:&isize, inp_chunk_size:&isize)->isize{
+    if inp_bl.is_empty() {
+        return *inp_strt_pt;
+    }
+    //units of time after the primary 
+    let time_units_after=inp_hm.get(&inp_bl[0]).expect("program error... hash entry missing");
+    let mut cur_total = *inp_strt_pt;
+    while ((cur_total+time_units_after)%inp_bl[0]) != 0 {
+        cur_total += inp_chunk_size;
+    }
+    //we've found a match for this bus ... use this match as the incr for the next stage(s)
+    let cur_nearest_1st_bus=cur_total;
+    let new_chunk_size=*inp_chunk_size * inp_bl[0];
+    find_target(&inp_bl[1..].to_vec(),&inp_hm,&cur_nearest_1st_bus,&new_chunk_size)
+}
