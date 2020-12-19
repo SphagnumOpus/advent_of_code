@@ -67,19 +67,20 @@ fn build_expressions(inp: &Vec<String>) -> Vec<Expression> {
     let mut out = Vec::new();
     for i in inp {
         let mut tmp_ex = Expression::Unparsed(i.to_string());
-        tmp_ex = parse_unparsed(&tmp_ex);
+        tmp_ex = parse_unparsed(tmp_ex);
         out.push(tmp_ex);
     }
     out
 }
 
-fn parse_unparsed(inp: &Expression) -> Expression {
+fn parse_unparsed(inp: Expression) -> Expression {
     // This routine takes an unparsed expression and does one level of parsing of that expression, breaking
     // it down to sub-expressions or full tokens
     // it returns a replacement expression, and if possible a valuation in the .value variable
 
     let mut cur_str = match inp {
-        Expression::Unparsed(n) => n.clone(),
+        //Expression::Unparsed(n) => n.clone(),
+        Expression::Unparsed(n) => n,
         _ => panic!("should not find anything but an unparsed string here!"),
     };
     trim_leading_whitespace(&mut cur_str);
@@ -148,7 +149,7 @@ fn harvest_expression(inp:&mut String) -> Option<Expression> {
             else {
                 *inp = String::new();
             }
-            Some(parse_unparsed(&Expression::Unparsed(out_str)))
+            Some(parse_unparsed(Expression::Unparsed(out_str)))
         },
         '0'..='9' => {//harvest a scalar element 
             let exp_len = inp.len();
