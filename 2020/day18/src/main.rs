@@ -22,10 +22,9 @@ Division
 fn main() {
     let orig_inp = read_input();  //read input buffer strings (trimmed)
     let expressions = build_expressions(&orig_inp);
-    let part1_answer = calc_part1(&expressions);
-    println!("The part 1 answer is {}",part1_answer);
-    let part2_answer = calc_part2(&expressions);
-    println!("The part 2 answer is {}",part2_answer);
+    let answer = calc_both_parts(&expressions);
+    println!("The part 1 answer is {}",answer.0);
+    println!("The part 2 answer is {}",answer.1);
 }
 
 fn read_input() -> Vec<String> {
@@ -39,40 +38,35 @@ fn read_input() -> Vec<String> {
     outbuf
 }
 
-fn calc_part1(inp:&Vec<Expression>) ->isize {
-    let mut out = 0;
+fn calc_both_parts(inp:&Vec<Expression>) ->(isize,isize) {
+    let mut out = (0,0);
     for i in inp {
-        out += match i {
+        let pt1 =  match i {
             Expression::Scalar(n) => *n,
             Expression::Expression(_v,n) => {
                 let tmp = n.unwrap();
                 tmp.0
             },
             _ => panic!("help!  whazzat?"),
-        }
-    }
-    out
-}
-
-fn calc_part2(inp:&Vec<Expression>) ->isize {
-    let mut out = 0;
-    for i in inp {
-        out += match i {
+        };
+        let pt2 =  match i {
             Expression::Scalar(n) => *n,
             Expression::Expression(_v,n) => {
                 let tmp = n.unwrap();
                 tmp.1
             },
             _ => panic!("help!  whazzat?"),
-        }
+        };
+        out=(out.0+pt1,out.1+pt2)
     }
     out
 }
 
+
 fn build_expressions(inp: &Vec<String>) -> Vec<Expression> {
     let mut out = Vec::new();
     for i in inp {
-        let mut tmp_ex = Expression::Unparsed(i.clone());
+        let mut tmp_ex = Expression::Unparsed(i.to_string());
         tmp_ex = parse_unparsed(&tmp_ex);
         out.push(tmp_ex);
     }
