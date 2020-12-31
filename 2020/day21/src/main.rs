@@ -1,6 +1,7 @@
 use std::io;
 use std::collections::HashSet;
 use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 //Day 21 2020 for advent of code
 //
@@ -20,9 +21,9 @@ type FinalAnswer = u32;
 fn main() {
     let orig_inp = read_input();  //read input buffer strings (trimmed)
     let food_list = build_food_list(&orig_inp);
-    let part1_answer = calc_part_1(&food_list);
+    let (part1_answer,mut allergen_list) = calc_part_1(&food_list);
     println!("The part 1 answer is {}",&part1_answer);
-    let part2_answer = calc_part_2(&food_list);
+    let part2_answer = calc_part_2(&mut allergen_list);
     println!("The part 2 answer is {}",&part2_answer);
 }
 
@@ -55,8 +56,6 @@ fn build_food_list(inp:&Vec<String>) -> Vec<Food> {
                 t_ingredients.insert(j.to_string().clone());
             }
         };
-        //println!("ingredients = {:?}",t_ingredients);
-        //println!("allergens = {:?}",t_allergens);
         let tmpfood = Food{
             ingredients: t_ingredients,
             allergens: t_allergens};
@@ -66,7 +65,7 @@ fn build_food_list(inp:&Vec<String>) -> Vec<Food> {
     out
 }
 
-fn calc_part_1(inp:&Vec<Food>) ->FinalAnswer{
+fn calc_part_1(inp:&Vec<Food>) ->(FinalAnswer,HashMap<Allergen,HashSet<Ingredient>>){
     let mut out = 0;
     let mut allergen_list:HashMap<Allergen,HashSet<Ingredient>> = HashMap::new();
     for i in inp {   //narrow down the allergens by looking for ingredients in every entry that has a given allergen
@@ -79,16 +78,13 @@ fn calc_part_1(inp:&Vec<Food>) ->FinalAnswer{
             allergen_list.insert(j.to_string(),new_list);
         }
     }
-    //println!("allergen_list = {:?}",allergen_list);
-    //flatten the allergen list 
     let mut final_list:HashSet<Ingredient> = HashSet::new();
-    for (idx_i, i) in &allergen_list {
+    for (_idx_i, i) in &allergen_list {
         for j in i {
             let tmp = j.clone();
             final_list.insert(tmp);
         }
     }
-    //println!("narrowed allergen_list = {:?}",final_list);
     //now count up all the entries that aren't in that hashset across all the input
     for i in inp {
         for j in &i.ingredients {
@@ -97,10 +93,49 @@ fn calc_part_1(inp:&Vec<Food>) ->FinalAnswer{
             }
         }
     }
-    out
+    (out,allergen_list)
 }
-fn calc_part_2(inp:&Vec<Food>) ->FinalAnswer{
-    0
+fn calc_part_2(inp:&mut HashMap<Allergen,HashSet<Ingredient>>) ->String{
+    let mut sorted_list:BTreeMap<Allergen,Ingredient> = BTreeMap::new();
+    let mut found_ingredients:HashSet<Ingredient> = HashSet::new();
+    loop{
+        let mut nothing_processed = true;
+        for (idx_i,mut i) in &mut *inp {
+            let tmp:&mut HashSet<String> = &mut i;
+            if tmp.len() == 1 {
+                let tmp_str=i.iter().next().unwrap().to_string();
+                let tmp_str_copy = tmp_str.clone();
+                sorted_list.insert((&idx_i).to_string(),tmp_str);
+                found_ingredients.insert(tmp_str_copy);
+
+            }
+            else {
+                nothing_processed = false;
+                let mut tmp_list = Vec::new();
+                for j in tmp.iter() {
+                    if found_ingredients.contains(j) {
+                        //let tmp_str=.iter().next().unwrap().to_string();
+                        tmp_list.push(j.clone());
+                    }
+                }
+                for j in tmp_list {
+                    tmp.remove(&j);
+                }
+            }
+
+        }
+        if nothing_processed {
+            break;
+        }
+    }
+    let mut out = String::new();
+    for (_idx_i,i) in sorted_list {
+        out.push_str(&i);
+        out.push_str(",");
+    }
+
+    out.truncate(out.len()-1);
+    out
 }
 
 //fn parse_allergen_list(inp:&HashMap<Allergen,HashSet<Ingredient>>)) ->Vec<Ingredient>{
