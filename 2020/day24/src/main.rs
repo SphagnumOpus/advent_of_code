@@ -24,6 +24,7 @@ enum DirectionPrefix {
 
 type FinalAnswerPart1 = u32;
 type FinalAnswerPart2 = u32;
+static NEIGHBOR_ARRAY:[TileCoordinate;6] = [(1,0),(0,1),(-1,1),(-1,0),(0,-1),(1,-1)];
 
 
 fn main() {
@@ -98,11 +99,11 @@ fn build_this_tile_map(inp:&Vec<Vec<Direction>>) -> HashMap<TileCoordinate,bool>
                 Direction::NorthWest => (0 as i32,-1 as i32)
             });
         }
-        let _result = match out.insert(coordinate,true) {  //try to insert the tile coordinate
+        let _result = match insert_tile_info(&mut out,coordinate,true) {  //try to insert the tile coordinate
             //this means the tile coordinate was already inserted .. it it was already true, set
             //back to false
             Some(x) => {if x {
-                    out.insert(coordinate,!x)
+                    out.insert(coordinate,!x)   //don't need to call insert_tile_info... it's just been called for this coordinate
                 }
                 else {
                     None
@@ -137,19 +138,11 @@ fn add_coordinate(inpx:TileCoordinate,inpy:TileCoordinate) -> TileCoordinate {
 }
 
 fn apply_rules(inp:&HashMap<TileCoordinate,bool>) -> HashMap<TileCoordinate,bool> {
-    let neighbor_array:[TileCoordinate;6] = [(1,0),(0,1),(-1,1),(-1,0),(0,-1),(1,-1)];
     let mut out = inp.clone();
-    for (key_i,_i) in inp.iter().filter(|(_x,y)| **y) {  //for every black tile
-        for j in &neighbor_array  {  //make sure every neighbor of a black tile exists in the tile map
-            if !out.contains_key(&add_coordinate(*key_i,*j)) {
-                out.insert(add_coordinate(*key_i,*j),false);
-            }
-        }
-    }
     let mut update_list=Vec::new();
     for (key_i,i) in out.iter() {
         let mut count = 0;
-        for j in &neighbor_array {
+        for j in &NEIGHBOR_ARRAY {
             count += match out.get(&add_coordinate(*key_i,*j)) {
                 Some(n) => match n {
                     true =>1,
@@ -173,18 +166,18 @@ fn apply_rules(inp:&HashMap<TileCoordinate,bool>) -> HashMap<TileCoordinate,bool
         }
     }
     for i in update_list {
-        out.insert(i.0,i.1);
+        insert_tile_info(&mut out,i.0,i.1);
     }
     out
 }
 
-
-
-
-
-
-
-
-
-            
-
+fn insert_tile_info(inp_hm:&mut HashMap<TileCoordinate,bool>,inp_c:TileCoordinate,inp_b: bool) -> Option<bool> {
+    if inp_b { 
+        for j in &NEIGHBOR_ARRAY  {  //make sure every neighbor of a black tile exists in the tile map
+                if !inp_hm.contains_key(&add_coordinate(inp_c,*j)) {
+                    inp_hm.insert(add_coordinate(inp_c,*j),false);
+                }
+        }
+    };
+    inp_hm.insert(inp_c,inp_b)
+}
