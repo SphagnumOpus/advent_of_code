@@ -117,19 +117,72 @@ fn build_this_tile_map(inp:&Vec<Vec<Direction>>) -> HashMap<TileCoordinate,bool>
 
 
 fn calc_part_1(inp:&HashMap<TileCoordinate,bool>) ->FinalAnswerPart1{
-    let out = inp.iter().filter(|(x,y)| **y).count() as FinalAnswerPart1;
+    let out = inp.iter().filter(|(_x,y)| **y).count() as FinalAnswerPart1;
    
     out
 }
 
 fn calc_part_2(inp:&HashMap<TileCoordinate,bool>) ->FinalAnswerPart2{
-   let out = 0;
-   out 
+    let mut copy = inp.clone();
+    for _i in 0..100 {
+        copy = apply_rules(&copy);
+        //println!("Day {}: {}",_i+1, copy.iter().filter(|(_x,y)| **y).count() as FinalAnswerPart2);
+    }
+    let out = copy.iter().filter(|(_x,y)| **y).count() as FinalAnswerPart2;
+    out 
 }
 
 fn add_coordinate(inpx:TileCoordinate,inpy:TileCoordinate) -> TileCoordinate {
     (inpx.0+inpy.0,inpx.1+inpy.1)
 }
+
+fn apply_rules(inp:&HashMap<TileCoordinate,bool>) -> HashMap<TileCoordinate,bool> {
+    let neighbor_array:[TileCoordinate;6] = [(1,0),(0,1),(-1,1),(-1,0),(0,-1),(1,-1)];
+    let mut out = inp.clone();
+    for (key_i,_i) in inp.iter().filter(|(_x,y)| **y) {  //for every black tile
+        for j in &neighbor_array  {  //make sure every neighbor of a black tile exists in the tile map
+            if !out.contains_key(&add_coordinate(*key_i,*j)) {
+                out.insert(add_coordinate(*key_i,*j),false);
+            }
+        }
+    }
+    let mut update_list=Vec::new();
+    for (key_i,i) in out.iter() {
+        let mut count = 0;
+        for j in &neighbor_array {
+            count += match out.get(&add_coordinate(*key_i,*j)) {
+                Some(n) => match n {
+                    true =>1,
+                    false => 0
+                },
+                None  => 0
+            }
+        }
+        let should_flip = match *i {
+            true => match count {
+                1 | 2 => false,
+                0 | _ => true
+            },
+            false => match count {
+                2 => true,
+                _ => false
+            }
+        };
+        if should_flip {
+            update_list.push((*key_i,!*i));
+        }
+    }
+    for i in update_list {
+        out.insert(i.0,i.1);
+    }
+    out
+}
+
+
+
+
+
+
 
 
 
