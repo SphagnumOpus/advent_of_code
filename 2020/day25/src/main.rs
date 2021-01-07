@@ -8,17 +8,14 @@ use std::io;
 type LoopSize = usize;
 type PublicKey = usize;
 
-type FinalAnswerPart1 = usize;
-type FinalAnswerPart2 = usize;
+type FinalAnswer = usize;
 
 
 fn main() {
     let orig_inp = read_input();  //read input buffer strings (trimmed)
     let this_public_key_list = build_this_public_key_list(&orig_inp);
-    let part1_answer = calc_part_1(&this_public_key_list);
-    println!("The part 1 answer is {}",&part1_answer);
-    let part2_answer = calc_part_2(&this_public_key_list);
-    println!("The part 2 answer is {}",&part2_answer);
+    let answer = calc_answer(&this_public_key_list);
+    println!("The answer is {}",&answer);
 }
 
 fn read_input() -> Vec<String> {
@@ -42,32 +39,28 @@ fn build_this_public_key_list(inp:&Vec<String>) -> Vec<PublicKey> {
     out
 }
 
-fn calc_part_1(inp:&Vec<PublicKey>) ->FinalAnswerPart1{
+fn calc_answer(inp:&Vec<PublicKey>) ->FinalAnswer{
     let mut subject_number = 7;
     let starting_value = 1;
     let dividing_value = 20201227;
     let mut current_loop_size:LoopSize = 0;
     let mut candidate_public_key =starting_value;
-    while !inp.contains(&candidate_public_key) {
+    let x0 = inp[0];   // set the two array elements to specific scalar variables
+    let x1 = inp[0];   // to speed up comparisons in the following while loop
+    while x0 != candidate_public_key && x1 != candidate_public_key {
         candidate_public_key= (candidate_public_key*subject_number)%dividing_value;
         current_loop_size += 1;
     }
     //found a public key!  Now use that loop size on the OTHER public key
-    let other_key = match inp[0]==candidate_public_key {
-        true => &inp[1],
-        false =>&inp[0] 
+    subject_number = match x0==candidate_public_key {
+        true => x1,
+        false =>x0 
     };
-    subject_number = *other_key;
     let mut encryption_key = 1;
     for _i in 0..current_loop_size {
         encryption_key = (encryption_key*subject_number)%dividing_value;
     }
 
     encryption_key
-}
-
-fn calc_part_2(_inp:&Vec<PublicKey>) ->FinalAnswerPart2{
-    let out = 0;
-    out 
 }
 
