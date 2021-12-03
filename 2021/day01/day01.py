@@ -9,7 +9,7 @@ file = open (args.file,'r')
 
 int_array = list(map (int,file.read().splitlines()))
 
-def part1(x):
+def compute_list(x):
     prev=int(x[0])
     answer = 0
     for i in x:
@@ -23,7 +23,7 @@ def part1(x):
 
 
 
-print (part1(int_array))
+print (compute_list(int_array))
 from operator import add
 window_int_array = map(add,map(add,int_array[:-2], int_array[1:-1]),int_array[2:])
-print (part1(window_int_array))
+print (compute_list(window_int_array))
