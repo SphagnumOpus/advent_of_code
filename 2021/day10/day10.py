@@ -43,9 +43,9 @@ def syntax_score(line): #create a score for a syntax line given part 1 rules
         acc += pt2_scores[close_dict[stack.pop(-1)]]
     
     return(0,acc)  #reached end of line without an illegal
-
-print('Part 1 answer is:',sum([syntax_score(i)[0] for i in lines]))
-pt2_result=sorted(list(filter(lambda x:x>0,[syntax_score(i)[1] for i in lines])))
+result=[syntax_score(i) for i in lines]
+print('Part 1 answer is:',sum(i[0] for i in result))
+pt2_result=sorted(list(filter(lambda x:x>0,[i[1] for i in result])))
 print('part 2 answer is:',pt2_result[int(len(pt2_result)/2)])
             
 exit()
