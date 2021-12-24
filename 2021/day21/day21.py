@@ -54,13 +54,6 @@ def take_a_turn(x,y):
 def die_roll_count(x):
     return(x[1])
 
-def game_set_whose_turn(g,x):
-    game[2]=x
-    return()
-
-def game_get_turn(g):
-    return(g[2])
-
 def game_take_a_turn(g,r):
     ret=g.copy()
     ret[g[2]]= take_a_turn(g[g[2]],r)
@@ -77,7 +70,6 @@ def game_losing_player(g):
     return(0 if g[0][1]<g[1][1] else 1)
 
 game=starting_game.copy()
-game_set_whose_turn(game,0)  #two players take turns  we set up to be poised for first move to be player 0
 
 while game_leading_score(game) < 1000:
     game=game_take_a_turn(game,die_roll(ddie)+die_roll(ddie)+die_roll(ddie))
@@ -104,15 +96,7 @@ def play_quantum_game(t,g):
             ret= [(tmp_result[i]*num_of_universes)+ret[i] for i in range(2)]
     return(ret)
 
-
-        
-
-
 outcomes=play_quantum_game(gauss_tbl,game)
 print('Part 2 answer is',max(outcomes[0],outcomes[1]))
 
-
-
-
 exit()
-
