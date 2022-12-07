@@ -65,6 +65,6 @@ def top_of_stack(buffer):
     return(ret)
 
 print("part 1 answer is",top_of_stack(perform_movements(lines,init_config,1)))
-print("part 1 answer is",top_of_stack(perform_movements(lines,init_config,2)))
+print("part 2 answer is",top_of_stack(perform_movements(lines,init_config,2)))
 
 
