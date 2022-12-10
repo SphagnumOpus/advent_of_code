@@ -24,8 +24,7 @@ class Cpu():
         #locals
         self.x=1   #the register
         self.xhist=[0,0] #start with value "during" 0th cycle and value during 1st cycle
-    
-    
+       
     def __repr__(self):
         ret = "CPU data"
         ret += f"x register contains: {self.x}\n"
@@ -69,11 +68,7 @@ def buildCRTimage(thiscpu):
             else:
                 ret=ret+"."
         ret=ret+f"\n"
-    return ret
-
- 
-
-    
+    return ret    
 
 def perform_parts(buffer):
     ret=[0,0,0]
@@ -83,7 +78,6 @@ def perform_parts(buffer):
     ret[1]=sum([(myCpu.GetxDuring(i) * i) for i in [20,60,100,140,180,220]])
     ret[2]=buildCRTimage(myCpu)
     return(ret)
-
      
 results=perform_parts(lines)  
 for i in range(1,3):
