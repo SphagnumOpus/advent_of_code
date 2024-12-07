@@ -1,5 +1,7 @@
 # advent_of_code
 
+For 2024 I'm back to writing in the rust programming language.
+
 For 2023 I'm honing my C# coding.
 
 For 2022 I'm still simply using python and getting used to Visual Studio Code Usage
