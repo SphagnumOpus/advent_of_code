@@ -64,7 +64,6 @@ fn main() {
 
     println!("Part 1 answer (XMAS entries found) equals {}",xmas_sum);
     multi_view=Vec::new();
-    //let diag_slope_input=make_diag(&mut chr_input,true);
     make_diag(&mut chr_input,true);
     let diag_slope_input=make_diag(&mut chr_input.into_iter().rev().collect(),false);   //reverse the rows to look for opposite diagonal 
     for i in diag_slope_input {
